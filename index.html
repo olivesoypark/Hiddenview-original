@@ -41,28 +41,19 @@ html,body{height:100%;font-family:'Jost',-apple-system,sans-serif;background:#ff
 .s2-head h2{font-family:'Jost',-apple-system,sans-serif;font-size:1.6rem;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-bottom:.35rem;}
 .s2-head p{font-size:12px;color:#999;}
 
-/* ── S2 에디토리얼 레이아웃 (가로 스크롤 페어 · ref1 간격) ── */
-.s2-body{padding:1rem 0 1.2rem;display:flex;flex-direction:column;min-height:0;}
-.s2-head{padding:0 1.2rem;flex-shrink:0;margin-bottom:1.4rem;}
-/* 인물 페어들이 옆으로 길게 → 가로 스크롤 */
-.pair-list{display:flex;flex-direction:row;align-items:stretch;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;flex:1;padding:0 2rem;gap:3.4rem;scrollbar-width:thin;}
-.pair-list::-webkit-scrollbar{height:6px;}
-.pair-list::-webkit-scrollbar-thumb{background:#ddd;border-radius:0;}
-/* 각 페어 = 세로 컬럼(디테일컷 위, 원본 비율 / 누끼 아래 왼쪽) */
-.pair{flex:0 0 auto;position:relative;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-start;transition:opacity .15s;}
-.pair:active{opacity:.6;}
-/* 디테일컷 — 높이 175px, 원본 비율 유지 (가로로 안 줄임) */
-.pair-detail{height:175px;background:#f3f3f3;overflow:hidden;flex-shrink:0;}
-.pair-detail img{height:175px;width:auto;object-fit:contain;display:block;}
-/* 누끼 — 디테일컷 아래 바닥 정렬 */
-.pair-fig{flex:1;display:flex;align-items:flex-end;justify-content:flex-start;margin-top:3.4rem;min-height:200px;}
-.pair-fig img{max-height:260px;height:auto;width:auto;object-fit:contain;display:block;}
-.pair-fig .sil-wrap{opacity:.55;}
-/* 캡션 */
-.pair-cap{display:flex;align-items:baseline;gap:.5rem;margin-top:.7rem;flex-shrink:0;}
-.pair-name{font-size:14px;font-weight:600;color:#111;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:.5px;}
-.pair-role{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#aaa;}
-.upload-btn{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.95);border:.5px solid #ddd;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#aaa;z-index:2;}
+/* ── S2 3열 그리드 (디테일컷 없이 누끼만) ── */
+.s2-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1.2rem 1.2rem 2rem;display:flex;flex-direction:column;min-height:0;}
+.s2-head{flex-shrink:0;margin-bottom:1.4rem;}
+.pair-list{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 8px;}
+.pcell{position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:4px 4px 8px;transition:opacity .15s;}
+.pcell:active{opacity:.6;}
+.pcell-fig{display:flex;align-items:flex-end;justify-content:center;height:170px;width:100%;}
+.pcell-fig img{max-height:170px;height:auto;max-width:100%;width:auto;object-fit:contain;display:block;}
+.pcell-fig .sil-wrap{opacity:.55;}
+.pcell-cap{display:flex;flex-direction:column;align-items:center;margin-top:8px;text-align:center;}
+.pcell-name{font-size:11px;font-weight:600;color:#111;line-height:1.3;word-break:break-word;}
+.pcell-role{font-size:9px;letter-spacing:.04em;color:#bbb;text-transform:uppercase;margin-top:1px;}
+.upload-btn{position:absolute;top:0;right:0;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.95);border:.5px solid #ddd;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#aaa;z-index:2;}
 
 /* ── S3 ── */
 .s3-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
@@ -290,20 +281,14 @@ function goTo(n){
 
 function buildRow(){
   const list = document.getElementById('pairList');
-  /* 좌·중·우 정렬을 번갈아 → 에디토리얼 흩뿌림 느낌 */
-  const aligns = ['align-left','align-right','align-center','align-right','align-left','align-center','align-right','align-left','align-center','align-right'];
 
   list.innerHTML = people.map((p,i)=>{
-    const detail = p.detailImg
-      ? `<img src="${p.detailImg}" alt="${p.name} detail">`
-      : '';
     const fig = p.img
       ? `<img src="${p.img}" alt="${p.name}">`
       : `<div class="sil-wrap">${silSvg(p.sil,p.col,138)}</div>`;
-    return `<div class="pair ${aligns[i%aligns.length]}" data-i="${i}">
-      <div class="pair-detail">${detail}</div>
-      <div class="pair-fig">${fig}</div>
-      <div class="pair-cap"><span class="pair-name">${p.name}</span><span class="pair-role">${p.role}</span></div>
+    return `<div class="pcell" data-i="${i}">
+      <div class="pcell-fig">${fig}</div>
+      <div class="pcell-cap"><span class="pcell-name">${p.name}</span><span class="pcell-role">${p.role}</span></div>
       <label class="upload-btn" title="사진 교체" data-i="${i}">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         <input type="file" accept="image/*" class="file-inp" data-i="${i}" style="display:none;"/>
